@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <style>
+    :root {
+      /* Theme Customization - Edit these values to change colors/fonts */
+      --primary-color: #0066cc;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --background: #f5f5f5;
+      --card-background: #ffffff;
+      --text-color: #1a1a1a;
+      --text-muted: #666666;
+      --border-color: #e0e0e0;
+      --checked-background: #f0f7ff;
+      --checked-text: #888888;
+      --hover-background: #f9f9f9;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--background);
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--text-color);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      background: var(--card-background);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .progress-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-color);
+      border-radius: 6px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-background);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-background);
+      border: none;
+      width: 100%;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-color);
+      transition: background 0.2s ease;
+    }
+
+    .card-header:hover {
+      background: var(--hover-background);
+    }
+
+    .card-icon {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .card.expanded .card-icon {
+      transform: rotate(180deg);
+    }
+
+    .card-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .card.expanded .card-body {
+      max-height: 500px;
+    }
+
+    .card.section-checked .card-header {
+      background: var(--checked-background);
+    }
+
+    .card.section-checked .card-header span:not(.card-icon) {
+      text-decoration: line-through;
+      color: var(--checked-text);
+    }
+
+    .card-content {
+      padding: 0 24px 20px;
+    }
+
+    /* Checklist Items */
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-item label {
+      cursor: pointer;
+      flex: 1;
+      color: var(--text-color);
+    }
+
+    .checklist-item label strong {
+      color: var(--primary-color);
+    }
+
+    .checklist-item.checked label {
+      color: var(--checked-text);
+      text-decoration: line-through;
+    }
+
+    /* Reset Button */
+    .reset-btn {
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #cc3333;
+      margin-top: 30px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+      display: block;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .reset-container {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    .reset-btn:hover {
+      background: #fff5f5;
+      border-color: #cc3333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{TITLE}}</h1>
+
+    <!-- Progress Tracker -->
+    <div class="progress-container">
+      <div class="progress-label">Presentation Progress</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">0 of {{TOTAL}} topics covered</div>
+    </div>
+
+    <!-- SECTIONS_PLACEHOLDER -->
+
+    <div class="reset-container">
+      <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
+    </div>
+  </div>
+
+  <script>
+    const PRESENTATION_VERSION = 'v3';
+    const STORAGE_KEY = `presentationState_${PRESENTATION_VERSION}`;
+    const totalItems = {{TOTAL}};
+
+    function toggleCard(cardId) {
+      const card = document.getElementById(cardId);
+      const checkbox = card.querySelector('input[type="checkbox"]');
+
+      // Don't expand if already checked (completed)
+      if (checkbox.checked) {
+        return;
+      }
+
+      card.classList.toggle('expanded');
+    }
+
+    function updateProgress() {
+      const sections = ['problem', 'solution', 'demo1', 'demo2', 'qa'];
+
+      // Visual feedback for checked sections
+      sections.forEach(id => {
+        const checked = document.getElementById(id).checked;
+        document.getElementById(id + 'Card').classList.toggle('section-checked', checked);
+
+        // Auto-collapse when checked
+        if (checked) {
+          document.getElementById(id + 'Card').classList.remove('expanded');
+        }
+      });
+
+      // Calculate progress
+      const checkedCount = sections.filter(id => document.getElementById(id).checked).length;
+      const percentage = (checkedCount / totalItems) * 100;
+
+      // Update progress bar
+      document.getElementById('progressFill').style.width = percentage + '%';
+      document.getElementById('progressText').textContent = `${checkedCount} of ${totalItems} topics covered`;
+
+      // Save to localStorage
+      saveState();
+    }
+
+    function saveState() {
+      const state = {};
+      const sections = ['problem', 'solution', 'demo1', 'demo2', 'qa'];
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          state[id] = el.checked;
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const state = JSON.parse(saved);
+        const sections = ['problem', 'solution', 'demo1', 'demo2', 'qa'];
+        sections.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && state.hasOwnProperty(id)) {
+            el.checked = state[id];
+          }
+        });
+
+        // Auto-expand unchecked sections
+        sections.forEach(id => {
+          const card = document.getElementById(id + 'Card');
+          const el = document.getElementById(id);
+          if (card && el && !el.checked) {
+            card.classList.add('expanded');
+          }
+        });
+
+        updateProgress();
+      }
+      // If no saved state, all sections start collapsed (fresh load)
+    }
+
+    function resetProgress() {
+      const sections = ['problem', 'solution', 'demo1', 'demo2', 'qa'];
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        const card = document.getElementById(id + 'Card');
+        if (el) {
+          el.checked = false;
+        }
+        // Collapse all cards and remove checked styling
+        if (card) {
+          card.classList.remove('expanded');
+          card.classList.remove('section-checked');
+        }
+      });
+      localStorage.removeItem(STORAGE_KEY);
+      updateProgress();
+    }
+
+    // Prevent card toggle when clicking checkbox
+    document.querySelectorAll('.card-header input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+      cb.addEventListener('change', (e) => {
+        e.stopPropagation();
+        updateProgress();
+      });
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', loadState);
+  </script>
+</body>
+</html>
