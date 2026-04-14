@@ -19,7 +19,9 @@ def parse_markdown(content: str) -> dict:
             - title: str (main # heading)
             - sections: list of dicts with:
                 - name: str (## heading)
+                - description: str (optional paragraph text before checklist items)
                 - items: list of checklist items
+                - footers: list of str (optional paragraph texts after checklist items)
                 - is_demo: bool
                 - demo_url: str or None
     """
@@ -57,11 +59,25 @@ def parse_markdown(content: str) -> dict:
 
             current_section = {
                 'name': section_name,
+                'description': '',
                 'items': [],
+                'footers': [],
                 'is_demo': is_demo,
                 'demo_url': demo_url
             }
             sections.append(current_section)
+            i += 1
+            continue
+
+        # Section description (plain text paragraph immediately after ## heading)
+        if current_section and not current_section['description'] and not current_section['items'] and line and not line.startswith('- ') and not line.startswith('#'):
+            current_section['description'] = line
+            i += 1
+            continue
+
+        # Section footer (plain text paragraph after checklist items)
+        if current_section and current_section['items'] and line and not line.startswith('- ') and not line.startswith('#'):
+            current_section['footers'].append(line)
             i += 1
             continue
 
@@ -123,6 +139,8 @@ def generate_html(parsed: dict) -> str:
 
         # Demo section with URL
         if section['is_demo'] and section['demo_url']:
+            description_html = f'<p class="section-description">{section["description"]}</p>' if section['description'] else ''
+            footer_html = ''.join([f'<p class="section-footer">{footer}</p>' for footer in section['footers']]) if section['footers'] else ''
             section_html = f'''
     <div class="card" id="{section_id}Card">
       <div class="card-header" onclick="toggleCard('{section_id}Card')">
@@ -134,15 +152,19 @@ def generate_html(parsed: dict) -> str:
       </div>
       <div class="card-body">
         <div class="card-content">
+          {description_html}
           <div class="checklist-item">
             <label><a href="{section['demo_url']}" target="_blank" style="color: #0066cc; text-decoration: none;">{section['demo_url']}</a></label>
           </div>
+          {footer_html}
         </div>
       </div>
     </div>'''
 
         # Q&A section
         elif 'question' in section['name'].lower() or 'qa' in section['name'].lower():
+            description_html = f'<p class="section-description">{section["description"]}</p>' if section['description'] else ''
+            footer_html = ''.join([f'<p class="section-footer">{footer}</p>' for footer in section['footers']]) if section['footers'] else ''
             section_html = f'''
     <div class="card" id="{section_id}Card">
       <div class="card-header" onclick="toggleCard('{section_id}Card')">
@@ -154,9 +176,11 @@ def generate_html(parsed: dict) -> str:
       </div>
       <div class="card-body">
         <div class="card-content">
+          {description_html}
           <div class="checklist-item">
             <label>Address audience questions</label>
           </div>
+          {footer_html}
         </div>
       </div>
     </div>'''
@@ -176,6 +200,8 @@ def generate_html(parsed: dict) -> str:
             <label>{item['description']}</label>
           </div>'''
 
+            description_html = f'<p class="section-description">{section["description"]}</p>' if section['description'] else ''
+            footer_html = ''.join([f'<p class="section-footer">{footer}</p>' for footer in section['footers']]) if section['footers'] else ''
             section_html = f'''
     <div class="card" id="{section_id}Card">
       <div class="card-header" onclick="toggleCard('{section_id}Card')">
@@ -186,7 +212,10 @@ def generate_html(parsed: dict) -> str:
         <span class="card-icon">&#9662;</span>
       </div>
       <div class="card-body">
-        <div class="card-content">{items_html}
+        <div class="card-content">
+          {description_html}
+          {items_html}
+          {footer_html}
         </div>
       </div>
     </div>'''
