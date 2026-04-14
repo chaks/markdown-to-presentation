@@ -48,6 +48,7 @@ def parse_markdown(content: str) -> dict:
 
             # Check if next non-empty line is a URL for demo sections
             demo_url = None
+            url_comes_before_description = False
             if is_demo:
                 for j in range(i + 1, len(lines)):
                     next_line = lines[j].strip()
@@ -55,6 +56,7 @@ def parse_markdown(content: str) -> dict:
                         if next_line.startswith('http://') or next_line.startswith('https://'):
                             demo_url = next_line
                             i = j  # Skip to the URL line
+                            url_comes_before_description = True
                         break
 
             current_section = {
@@ -63,23 +65,31 @@ def parse_markdown(content: str) -> dict:
                 'items': [],
                 'footers': [],
                 'is_demo': is_demo,
-                'demo_url': demo_url
+                'demo_url': demo_url,
+                'url_before_description': url_comes_before_description
             }
             sections.append(current_section)
             i += 1
             continue
 
         # Section description (plain text paragraph immediately after ## heading)
+        # Skip if URL came before this text (URL appears first in markdown)
         if current_section and not current_section['description'] and not current_section['items'] and line and not line.startswith('- ') and not line.startswith('#'):
-            current_section['description'] = line
+            if not current_section.get('url_before_description', False):
+                current_section['description'] = line
+            else:
+                # URL came first, so this text should be a footer
+                current_section['footers'].append(line)
             i += 1
             continue
 
-        # Section footer (plain text paragraph after checklist items)
-        if current_section and current_section['items'] and line and not line.startswith('- ') and not line.startswith('#'):
-            current_section['footers'].append(line)
-            i += 1
-            continue
+        # Section footer (plain text paragraph after checklist items or description)
+        if current_section and line and not line.startswith('- ') and not line.startswith('#'):
+            # Capture as footer if we have items OR if this is a demo section with description already set
+            if current_section['items'] or (current_section['is_demo'] and current_section['description']):
+                current_section['footers'].append(line)
+                i += 1
+                continue
 
         # Checklist item (- **text** — description)
         if line.startswith('- ') and current_section:
@@ -116,12 +126,13 @@ def load_template() -> str:
         return f.read()
 
 
-def generate_html(parsed: dict) -> str:
+def generate_html(parsed: dict, timer_minutes: int = None) -> str:
     """
     Generate HTML from parsed markdown.
 
     Args:
         parsed: dict with title and sections
+        timer_minutes: Optional timer duration in minutes
 
     Returns:
         Complete HTML string
@@ -130,6 +141,13 @@ def generate_html(parsed: dict) -> str:
 
     # Replace Title
     html = template.replace('{{TITLE}}', parsed['title'])
+
+    # Replace timer placeholder
+    if timer_minutes:
+        html = html.replace('{{TIMER_MINUTES}}', str(timer_minutes))
+    else:
+        # Remove timer-related placeholders if no timer
+        html = html.replace('{{TIMER_MINUTES}}', '0')
 
     # Generate section HTML
     sections_html = []
@@ -246,13 +264,14 @@ def generate_html(parsed: dict) -> str:
     return html
 
 
-def convert_markdown_to_presentation(input_path: str, output_path: str = None):
+def convert_markdown_to_presentation(input_path: str, output_path: str = None, timer_minutes: int = None):
     """
     Convert a markdown file to an HTML presentation.
 
     Args:
         input_path: Path to the markdown file
         output_path: Path for the output HTML (default: presentation.html in same directory)
+        timer_minutes: Optional timer duration in minutes
     """
     input_file = Path(input_path)
 
@@ -275,7 +294,7 @@ def convert_markdown_to_presentation(input_path: str, output_path: str = None):
         print("Warning: No sections found in markdown (use ## Section)")
 
     # Generate HTML
-    html = generate_html(parsed)
+    html = generate_html(parsed, timer_minutes)
 
     # Write output
     if output_path is None:
@@ -291,11 +310,11 @@ def convert_markdown_to_presentation(input_path: str, output_path: str = None):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python generator.py <input.md> [output.html]")
-        sys.exit(1)
+    import argparse
+    parser = argparse.ArgumentParser(description='Convert markdown to HTML presentation')
+    parser.add_argument('input', help='Input markdown file')
+    parser.add_argument('output', nargs='?', help='Output HTML file (optional)')
+    parser.add_argument('--timer', type=int, help='Timer duration in minutes')
+    args = parser.parse_args()
 
-    input_path = sys.argv[1]
-    output_path = sys.argv[2] if len(sys.argv) > 2 else None
-
-    convert_markdown_to_presentation(input_path, output_path)
+    convert_markdown_to_presentation(args.input, args.output, args.timer)

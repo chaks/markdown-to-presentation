@@ -9,13 +9,14 @@ Convert markdown files into interactive HTML presentations with progress trackin
 ## Features
 
 - **Progress Tracking** - Visual progress bar shows completion status across all sections
+- **Countdown Timer** - Optional timer with visual feedback (amber at ≤1 min, red when expired)
 - **Collapsible Cards** - Each section expands/collapses for focused viewing
 - **Persistent State** - Checkboxes save to localStorage, survive page refreshes
 - **Self-Contained Output** - Single HTML file, no external dependencies, works offline
 - **Responsive Design** - Looks great on desktop and mobile
 - **Theme Customization** - Easy color/font changes via CSS variables
 - **Demo Section Support** - Embed URLs for live demos
-- **Reset Functionality** - Clear all progress with one click
+- **Reset Functionality** - Clear all progress and timer with one click
 
 ## Preview
 
@@ -39,6 +40,9 @@ python skills/generator.py your-presentation.md
 
 # Or specify custom output path
 python skills/generator.py your-presentation.md output.html
+
+# With countdown timer (in minutes)
+python skills/generator.py your-presentation.md --timer 15
 ```
 
 Open the generated `presentation.html` in your browser.
@@ -108,6 +112,10 @@ https://staging.example.com
 
 Tracks how many sections you've completed. Updates in real-time as you check off sections.
 
+### Countdown Timer
+
+Optional timer embedded in the progress card. Displays remaining time in MM:SS format with subtle pale styling. Visual feedback: turns amber at ≤1 minute, red when expired. Resets when clicking "Reset Progress".
+
 ### Collapsible Cards
 
 Click any section header to expand and view details. Checked sections auto-collapse.
@@ -143,8 +151,9 @@ markdown-to-presentation/
 │   ├── generator.py       # Markdown parser and HTML generator
 │   ├── template.html      # Reusable HTML/CSS/JS template
 │   └── SKILL.md           # Claude skill documentation
-├── LICENSE            # MIT license
-└── README.md          # This file
+├── examples/              # Sample presentations
+├── LICENSE                # Apache 2.0 license
+└── README.md              # This file
 ```
 
 ## Use Cases
@@ -171,6 +180,7 @@ Requires localStorage support and modern CSS (CSS custom properties, flexbox).
 - Checklist items use `**bold** — text` format specifically
 - Demo sections auto-detect URLs on the line immediately after the header
 - Progress tracking uses section count (not individual checklist items)
+- Timer feature requires `--timer` flag; not enabled by default
 
 ## Troubleshooting
 

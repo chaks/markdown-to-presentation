@@ -15,6 +15,8 @@
 
 https://example.com/demo
 
+This is a demo of the markdown-to-presentation generator.
+
 ## Advanced Features
 
 - **Theme Customization** — Edit CSS variables to change colors

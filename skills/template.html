@@ -59,6 +59,13 @@
       padding: 20px;
       margin-bottom: 24px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-left {
+      flex: 1;
     }
 
     .progress-label {
@@ -87,6 +94,23 @@
       color: var(--primary-color);
       margin-top: 8px;
       font-weight: 500;
+    }
+
+    /* Timer Display */
+    .timer-display {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #d0d0d0;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .timer-display.warning {
+      color: #cc8800;
+    }
+
+    .timer-display.expired {
+      color: #cc3333;
     }
 
     /* Cards */
@@ -226,11 +250,14 @@
 
     <!-- Progress Tracker -->
     <div class="progress-container">
-      <div class="progress-label">Presentation Progress</div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+      <div class="progress-left">
+        <div class="progress-label">Presentation Progress</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">0 of {{TOTAL}} topics covered</div>
       </div>
-      <div class="progress-text" id="progressText">0 of {{TOTAL}} topics covered</div>
+      <div class="timer-display" id="timerDisplay" style="display: none;">--:--</div>
     </div>
 
     <!-- SECTIONS_PLACEHOLDER -->
@@ -244,6 +271,9 @@
     const PRESENTATION_VERSION = 'v3';
     const STORAGE_KEY = `presentationState_${PRESENTATION_VERSION}`;
     const totalItems = {{TOTAL}};
+    const timerMinutes = {{TIMER_MINUTES}};
+    let timerInterval = null;
+    let timeRemaining = 0;
 
     function toggleCard(cardId) {
       const card = document.getElementById(cardId);
@@ -336,6 +366,15 @@
         }
       });
       localStorage.removeItem(STORAGE_KEY);
+
+      // Reset timer
+      if (timerMinutes > 0) {
+        clearInterval(timerInterval);
+        timeRemaining = timerMinutes * 60;
+        updateTimerDisplay();
+        timerInterval = setInterval(tick, 1000);
+      }
+
       updateProgress();
     }
 
@@ -352,6 +391,46 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', loadState);
+
+    // Timer functions
+    function initTimer() {
+      if (timerMinutes <= 0) {
+        return;
+      }
+
+      const timerDisplay = document.getElementById('timerDisplay');
+      timerDisplay.style.display = 'block';
+      timeRemaining = timerMinutes * 60;
+      updateTimerDisplay();
+      timerInterval = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      if (timeRemaining > 0) {
+        timeRemaining--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(timerInterval);
+      }
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      const display = document.getElementById('timerDisplay');
+      display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      // Visual feedback for time remaining
+      display.classList.remove('warning', 'expired');
+      if (timeRemaining <= 0) {
+        display.classList.add('expired');
+      } else if (timeRemaining <= 60) {
+        display.classList.add('warning');
+      }
+    }
+
+    // Start timer after state is loaded
+    document.addEventListener('DOMContentLoaded', initTimer);
   </script>
 </body>
 </html>

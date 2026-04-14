@@ -12,7 +12,8 @@ This skill converts markdown files into self-contained, interactive HTML present
 ## Invocation
 
 Users can invoke this skill naturally:
-- "Generate a presentation from Demo_Agentic_AI_Test_Automation.md"
+
+- "Generate a presentation from sample-presentation.md"
 - "Create a presentation from this markdown file"
 - "Convert my markdown to an interactive HTML presentation"
 
@@ -24,9 +25,11 @@ Expected input format:
 # Presentation Title
 
 ## Section Name
+
 - **Bold term** — description
 
 ## Demo 1
+
 http://localhost:3000
 
 ## Questions & Answers
@@ -55,7 +58,8 @@ The template uses CSS variables for easy theming. Users can edit these in the ge
 ```css
 :root {
   --primary-color: #0066cc;
-  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --background: #f5f5f5;
   --card-background: #ffffff;
 }
@@ -64,9 +68,10 @@ The template uses CSS variables for easy theming. Users can edit these in the ge
 ## Output Features
 
 - Progress bar tracking completed sections
+- Countdown timer (optional, with `--timer` flag)
 - Collapsible cards for each section
 - Checkbox completion with localStorage persistence
-- Reset button to clear progress
+- Reset button to clear progress (also resets timer)
 - Responsive design (mobile/desktop)
 - Self-contained HTML (works offline, no external dependencies)
 
@@ -79,14 +84,17 @@ The template uses CSS variables for easy theming. Users can edit these in the ge
 ## Example
 
 **Input markdown:**
+
 ```markdown
 # My Presentation
 
 ## Introduction
+
 - **Point 1** - First key point
 - **Point 2** - Second key point
 
 ## Demo
+
 http://localhost:3000
 ```
 
