@@ -2,7 +2,7 @@
 
 Convert markdown files into interactive HTML presentations with progress tracking, collapsible sections, and localStorage persistence.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-green.svg)
 
@@ -205,7 +205,7 @@ Edit `skills/template.html` to change:
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
